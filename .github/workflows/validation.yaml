@@ -89,6 +89,11 @@ jobs:
           - os-family: windows
             python-version: "3.11"
 
+    permissions:
+      # TODO do better perms, these are just for the "Annotate Test Results" step
+      checks: write
+      pull-requests: write
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -113,7 +118,7 @@ jobs:
         # yamllint enable rule:line-length
 
       - name: Annotate Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@v2.18.0
         if: ${{ always() &&  github.event_name == 'pull_request' && matrix.has-authoritative-test-results }}  # yamllint disable-line rule:line-length
         with:
           files: "test-results/**/*.xml"
