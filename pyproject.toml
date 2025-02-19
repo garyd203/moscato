@@ -1,0 +1,60 @@
+[tool.black]
+line-length = 88
+target-version = ["py37"]
+skip-magic-trailing-comma = true
+
+
+[tool.poetry]
+name = "moscato"
+version = "0.1.0"
+description = "A drop-in asyncio-compatible replacement for `moto`'s `mock_aws()` function, for mocking `aiobotocore`"
+readme = "README.md"
+authors = ["Gary Donovan <moscato@gazza.id.au>"]
+license = "Apache 2.0"
+homepage = "https://github.com/garyd203/moscato"
+repository = "https://github.com/garyd203/moscato"
+documentation = "https://github.com/garyd203/moscato"
+# If you update this keyword list, also update the one in github
+keywords=["asyncio", "moto"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+]
+packages = [
+    { include="moscato", from="src" },
+]
+
+[tool.poetry.dependencies]
+# Update the environment variable `MIN_PYTHON_VERSION` in GitHub Actions
+# workflow files if the minimum Python version changes.
+python = "^3.7.0"
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "B", "A", "C4", "ERA", "EXE", "ISC", "G", "T20", "PT", "SIM", "UP032"]
+ignore = ["E501", "ISC001"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = true
+line-ending = "auto"
+
+
+[build-system]
+requires = ["poetry>=1.5.0"]
+build-backend = "poetry.masonry.api"
