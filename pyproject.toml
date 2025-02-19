@@ -25,7 +25,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
 ]
 packages = [
     { include="moscato", from="src" },
@@ -34,15 +34,12 @@ packages = [
 [tool.poetry.dependencies]
 # Update the environment variable `MIN_PYTHON_VERSION` in GitHub Actions
 # workflow files if the minimum Python version changes.
-python = "^3.7.1"
+python = "^3.8.12"
 
 
 [tool.poetry.group.testing.dependencies]
 # Dependencies for running unit tests
-coverage = [
-    { version = "^6.3", markers = "python_version >= '3.7'", extras=["toml"] },
-    { version = "~6.2", markers = "python_version < '3.7'", extras=["toml"] },
-]
+coverage = { version = "^6.3", extras=["toml"] }
 pytest = "^7"
 
 
