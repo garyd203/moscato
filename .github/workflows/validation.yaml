@@ -1,0 +1,225 @@
+---
+name: Validate
+
+# TODO concurrency - cancel existing run on same branch
+
+"on":
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  # Minimum Python version supported by the library
+  # (bumped to the minimum version supported by github actions - see
+  # https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json )
+  # Note that ubuntu 22.04 requires minimum 3.7.13, whereas windows on 3.7 requires max 3.7.9
+  # So we compromise on ubuntu 20.04 in order to meet the windows requirement.
+  MIN_PYTHON_VERSION: 3.7.0
+  POETRY_VERSION: 1.5.1
+
+jobs:
+  style-check:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ env.MIN_PYTHON_VERSION }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.MIN_PYTHON_VERSION }}
+      - name: Update pip
+        run: |
+          python -m pip install --upgrade pip
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@7044c9c69e0265717d52471f66033b8d0e2a69ff  # v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Install Dependencies
+        run: |
+          poetry install --without testing
+      - name: Check YAML Formatting
+        run: |
+          poetry run yamllint -c yamllint_config.yaml --strict .
+      - name: Check Python Formatting
+        run: |
+          # NB: Format before style check
+          poetry run ruff format --check src tests
+      - name: General Python Style Checks (Flake8)
+        run: |
+          poetry run ruff check src tests
+
+  test:
+    name: >
+      Test (
+      ${{ matrix.extra-test-title }}
+      Py${{ matrix.python-version }}
+      ${{ matrix.os-family }}
+      )
+    runs-on: ${{ format('{0}-latest', matrix.os-family) }}
+    strategy:
+      # We use branch-dependent matrix inputs to reduce the amount of tests
+      # that are run on PR's (every relevant combination is run when pushed
+      # to `master`).
+      #
+      # The variants are produced inline as a (json) dictionary, indexed by
+      # whether we are on a protected branch. Some notes about this technique:
+      #   - The only fields available for variant lookup are those on the
+      #     `github` context (see
+      #     https://docs.github.com/en/actions/learn-github-actions/contexts#github-context)
+      #   - Specifically, we can't simplify our code here by generating the
+      #     lookup table as an environment variable in the top-level of this
+      #     file, because that is not available here.
+      #   - It has to be a single line within this file, or else the GitHub
+      #     YAML parser will wreck the JSON somehow.
+      #   - We need to encode the entire YAML value as a quoted string so that
+      #     we can use colon's inside it, which means internal double quotes
+      #     within the JSON string have to be escaped.
+      matrix:
+        os-family: "${{ fromJSON('{\"true\": [ \"ubuntu\", \"windows\", \"macos\" ], \"false\": [ \"ubuntu\" ]}')[github.ref_protected] }}"  # yamllint disable-line rule:line-length
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
+        aws-xray-sdk-version: [ "<existing>" ]
+        aiohttp-version: [ "<existing>" ]
+        fastapi-version: [ "<existing>" ]
+        include:
+          # Export test results from the primary configuration
+          - os-family: ubuntu
+            python-version: "3.11"
+            aws-xray-sdk-version: "<existing>"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+            has-authoritative-test-results: true
+          # Always test each OS at least once on PR
+          - os-family: macos
+            python-version: "3.11"
+            aws-xray-sdk-version: "<existing>"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - os-family: windows
+            python-version: "3.11"
+            aws-xray-sdk-version: "<existing>"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          # Extra test variations for older versions of the AWS X-Ray SDK
+          - extra-test-title: "X-Ray SDK v2.6: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "2.6"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.7: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "2.7"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.8: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "2.8"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.9: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "2.9"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.10: "
+            os-family: ubuntu
+            python-version: "3.11"
+            aws-xray-sdk-version: "2.10"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.11: "
+            os-family: ubuntu
+            python-version: "3.11"
+            aws-xray-sdk-version: "2.11"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          # Extra test variations for older versions of 3rd-party libraries we integrate with
+          - extra-test-title: "FastAPI v0.47: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "<existing>"
+            aiohttp-version: "<existing>"
+            fastapi-version: "0.47.1"
+          - extra-test-title: "aiohttp v3.7.0: "
+            os-family: ubuntu
+            python-version: "3.7"
+            aws-xray-sdk-version: "2.6.0"
+            aiohttp-version: "3.7.0"
+            fastapi-version: "<existing>"
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Update pip
+        run: |
+          python -m pip install --upgrade pip
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@7044c9c69e0265717d52471f66033b8d0e2a69ff  # v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Install Standard Dependencies
+        run: |
+          poetry install --without dev
+      - name: Override Dependencies For Backward Compatibility Testing (Unix-like)
+        if: matrix.os-family != 'windows'
+        run: |
+          if [ "${{ matrix.aws-xray-sdk-version }}" != "<existing>" ]; then
+            poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}" --group testing
+          fi
+          if [ "${{ matrix.fastapi-version }}" != "<existing>" ]; then
+            poetry add fastapi="${{ matrix.fastapi-version }}" --group testing
+          fi
+          if [ "${{ matrix.aiohttp-version }}" != "<existing>" ]; then
+            poetry add aiohttp="${{ matrix.aiohttp-version }}" --group testing
+          fi
+      - name: Override Dependencies For Backward Compatibility Testing (Windows)
+        if: matrix.os-family == 'windows'
+        run: |
+          if ("${{ matrix.aws-xray-sdk-version }}" -ne "<existing>" ) {
+            poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}" --group testing
+          }
+          if ("${{ matrix.fastapi-version }}" -ne "<existing>" ) {
+            poetry add fastapi="${{ matrix.fastapi-version }}" --group testing
+          }
+          if ("${{ matrix.aiohttp-version }}" -ne "<existing>" ) {
+            poetry add aiohttp="${{ matrix.aiohttp-version }}" --group testing
+          }
+      - name: Test
+        # yamllint disable rule:line-length
+        run: |
+          poetry run pytest tests --cov=moscato --cov-report= --junit-xml=test-results/junit/pytest.xml --disable-warnings
+        # yamllint enable rule:line-length
+
+      - name: Annotate Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: ${{ always() &&  github.event_name == 'pull_request' && matrix.has-authoritative-test-results }}  # yamllint disable-line rule:line-length
+        with:
+          files: "test-results/**/*.xml"
+          check_name: "Combined Test Report"
+          comment_title: "Test Report"
+          # Report all failures for a given test, to include different results
+          # from matrix jobs and parametrised tests.
+          report_individual_runs: true
+          # Class name should be interpreted within the scope of the file. This ain't Java.
+          deduplicate_classes_by_file_name: true
+          # Make all links go to the final file, not the commit.
+          compare_to_earlier_commit: false
+          # Explicitly use the over-powerful default token
+          # TODO Pull this step out to use a follow-up job with a restricted token, mutter mutter
+          github_token: ${{ github.token }}
+
+      - name: Coverage comment
+        if: ${{ matrix.has-authoritative-test-results }}
+        id: coverage_comment
+        uses: ewjoachim/python-coverage-comment-action@v2
+        # TODO Pull this step out to use a follow-up job with a restricted token, mutter mutter
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
