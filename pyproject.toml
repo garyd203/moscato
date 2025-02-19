@@ -34,7 +34,18 @@ packages = [
 [tool.poetry.dependencies]
 # Update the environment variable `MIN_PYTHON_VERSION` in GitHub Actions
 # workflow files if the minimum Python version changes.
-python = "^3.7.0"
+python = "^3.7.1"
+
+
+[tool.poetry.group.testing.dependencies]
+# Dependencies for running unit tests
+pytest = "^7"
+
+
+[tool.poetry.group.dev.dependencies]
+# Miscellaneous non-test-scope dependencies for developign this library
+ruff = "^0.5.0"
+
 
 [tool.ruff]
 line-length = 88
