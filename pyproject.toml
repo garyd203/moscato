@@ -41,6 +41,7 @@ python = "^3.8.12"
 # Dependencies for running unit tests
 coverage = { version = "^6.3", extras=["toml"] }
 pytest = "^7"
+pytest-cov = "^3.0"
 
 
 [tool.poetry.group.dev.dependencies]
