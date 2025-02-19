@@ -6,10 +6,10 @@ name: Validate
 "on":
   push:
     branches:
-      - master
+      - trunk
   pull_request:
     branches:
-      - master
+      - trunk
 
 env:
   # Minimum Python version supported by the library
@@ -58,7 +58,7 @@ jobs:
     strategy:
       # We use branch-dependent matrix inputs to reduce the amount of tests
       # that are run on PR's (every relevant combination is run when pushed
-      # to `master`).
+      # to `trunk`).
       #
       # The variants are produced inline as a (json) dictionary, indexed by
       # whether we are on a protected branch. Some notes about this technique:
