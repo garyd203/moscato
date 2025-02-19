@@ -90,9 +90,12 @@ jobs:
             python-version: "3.11"
 
     permissions:
-      # TODO do better perms, these are just for the "Annotate Test Results" step
+      # TODO do better perms, these are just for the "Annotate Test Results"
+      # and code coverage steps
       checks: write
       pull-requests: write
+      contents: write
+      actions: read
 
     steps:
       - uses: actions/checkout@v2
