@@ -80,8 +80,8 @@ jobs:
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
         exclude:
           # Exclude incompatible versions of older Python + modern OS
-          - os-family: "windows-latest"
-            python-version: "3.8"
+          - os-family: "ubuntu-latest"
+            python-version: "3.7"
         include:
           # Export test results from the primary configuration
           - os-family: "ubuntu-latest"
@@ -93,8 +93,8 @@ jobs:
           - os-family: "windows-latest"
             python-version: "3.13"
           # Hand-code version config for older python versions with limited support
-          - os-family: "windows-latest"
-            python-version: "3.8.10"
+          - os-family: "ubuntu-20.04"
+            python-version: "3.7"
 
 
     permissions:
