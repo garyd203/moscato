@@ -56,7 +56,7 @@ jobs:
       Py${{ matrix.python-version }}
       ${{ matrix.os-family }}
       )
-    runs-on: ${{ format('{0}-latest', matrix.os-family) }}
+    runs-on: ${{ matrix.os-family }}
     strategy:
       # We use branch-dependent matrix inputs to reduce the amount of tests
       # that are run on PR's (every relevant combination is run when pushed
@@ -76,24 +76,24 @@ jobs:
       #     we can use colon's inside it, which means internal double quotes
       #     within the JSON string have to be escaped.
       matrix:
-        os-family: "${{ fromJSON('{\"true\": [ \"ubuntu\", \"windows\", \"macos\" ], \"false\": [ \"ubuntu\" ]}')[github.ref_protected] }}"  # yamllint disable-line rule:line-length
+        os-family: "${{ fromJSON('{\"true\": [ \"ubuntu-latest\", \"windows-latest\", \"macos-latest\" ], \"false\": [ \"ubuntu-latest\" ]}')[github.ref_protected] }}"  # yamllint disable-line rule:line-length
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
         exclude:
           # Exclude incompatible versions of older Python + modern OS
-          - os-family: windows
+          - os-family: "windows-latest"
             python-version: "3.8"
         include:
           # Export test results from the primary configuration
-          - os-family: ubuntu
+          - os-family: "ubuntu-latest"
             python-version: "3.11"
             has-authoritative-test-results: true
           # Always test each OS at least once on PR
-          - os-family: macos
+          - os-family: "macos-latest"
             python-version: "3.13"
-          - os-family: windows
+          - os-family: "windows-latest"
             python-version: "3.13"
           # Hand-code version config for older python versions with limited support
-          - os-family: windows
+          - os-family: "windows-latest"
             python-version: "3.8.10"
 
 
