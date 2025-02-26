@@ -82,6 +82,8 @@ jobs:
           # Exclude incompatible versions of older Python + modern OS
           - os-family: "ubuntu-latest"
             python-version: "3.7"
+          - os-family: "macos-latest"
+            python-version: "3.7"
         include:
           # Export test results from the primary configuration
           - os-family: "ubuntu-latest"
@@ -94,6 +96,8 @@ jobs:
             python-version: "3.13"
           # Hand-code version config for older python versions with limited support
           - os-family: "ubuntu-20.04"
+            python-version: "3.7"
+          - os-family: "macos-13"  # x86
             python-version: "3.7"
 
 
