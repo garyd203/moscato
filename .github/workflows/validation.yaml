@@ -17,12 +17,15 @@ env:
   # https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json )
   MIN_PYTHON_VERSION: 3.7.1
   POETRY_VERSION: 1.5.1
+  # TODO bump poetry version?
+  # TODO constant for latest python also, for the matrix
 
 jobs:
   style-check:
     # We need to use an older version of Ubuntu here, because we want to run
     # checks using the oldest supported version of Python
     runs-on: ubuntu-20.04
+    # TODO want to split out different runners for different target languages
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ env.MIN_PYTHON_VERSION }}
@@ -38,8 +41,10 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Dependencies
         run: |
+          # better to just install the specific group?
           poetry install --without testing
       - name: Check YAML Formatting
+        # FIXME current yamllint uses Python 3.8
         run: |
           poetry run yamllint -c yamllint_config.yaml --strict .
       - name: Check Python Formatting

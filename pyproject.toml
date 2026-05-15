@@ -6,7 +6,7 @@ skip-magic-trailing-comma = true
 
 [tool.poetry]
 name = "moscato"
-version = "0.1.0"
+version = "0.2.0"
 description = "A drop-in asyncio-compatible replacement for `moto`'s `mock_aws()` function, for mocking `aiobotocore`"
 readme = "README.md"
 authors = ["Gary Donovan <moscato@gazza.id.au>"]
@@ -42,6 +42,8 @@ packages = [
 # workflow files if the minimum Python version changes.
 python = "^3.7.1"
 
+# TODO add optional dependency to restrict aiobotocore and botocore
+
 
 [tool.poetry.group.testing.dependencies]
 # Dependencies for running unit tests
@@ -68,6 +70,7 @@ line-length = 88
 indent-width = 4
 
 [tool.ruff.lint]
+# TODO eyeball this list
 select = ["E4", "E7", "E9", "F", "B", "A", "C4", "ERA", "EXE", "ISC", "G", "T20", "PT", "SIM", "UP032"]
 ignore = ["E501", "ISC001"]
 
@@ -83,5 +86,7 @@ line-ending = "auto"
 
 
 [build-system]
-requires = ["poetry>=1.5.0"]
+# Update the environment variable `POETRY_VERSION` in GitHub Actions
+# workflow files if the Poetry version changes.
+requires = ["poetry>=1.5.1"]
 build-backend = "poetry.masonry.api"
